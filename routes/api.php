@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use \App\Http\Controllers\Api\OuterConnectionController as OuterConnectionController;
 use \App\Http\Controllers\Api\HomeController as HomeController;
+use Illuminate\Support\Facades\Auth;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -18,9 +19,7 @@ use \App\Http\Controllers\Api\HomeController as HomeController;
 |
 */
 
-Route::get('/user', function (Request $request) {
-    test();
-});
+
 
 Route::group(['middleware' => 'auth:sanctum'], function (){
     Route::get('get-all-users',[HomeController::class,'allUsers'])->name('get-all-users');
@@ -40,35 +39,26 @@ Route::group(['middleware' => 'OuterConnection'], function (){
 });
 
 
-Route::get('/tokens/create', function () {
-    $token = \App\Models\User::first()->createToken('login');
-    return ['token' => $token->plainTextToken];
-});
+Route::post('/auth', function () {
 
-Route::get('test-fetch',function(){
-    $userEndpoint1  = Http::acceptJson()->get('https://60e1b5fc5a5596001730f1d6.mockapi.io/api/v1/users/users_1');
-    $userEndpoint1Data = json_decode($userEndpoint1->body());
-    // return $userEndpoint1Data;
-    $validator = Validator::make($userEndpoint1Data, [
-        '*.email'   => ['required','email'],
-        '*.firstName' => 'required',
-        '*.lasttName' => 'required'
+    // return request()->all();
+    $validator = Validator::make(request()->all(), [
+        'email'   => 'required|email',
+        'password' => 'required|min:6',
+
     ]);
-
     if ($validator->fails()) {
-        return response()->json(['error'=>'Some Values is Missed please Check End Point'], 422);
+        return response()->json(['error'=>$validator->errors()], 401);
     }
-    foreach($userEndpoint1Data as $user)
-    {
-        return $user;
-        \App\Models\User::firstOrCreate(
-            
-            [
-                'first_name' => $user->firstName,
-                'last_name' => $user->lastName,
-                'email'=> $user->email,
-                'avatar'=> $user->avatar
-            ]
-        );
+
+    if (Auth::guard('admin')->attempt(['email' => request()->email, 'password' => request()->password])) {
+        $token = Auth::guard('admin')->user()->createToken('Admin');
+        return ['token' => $token->plainTextToken];
+    }else{
+        return response()->json(['error' => 'Unauthenticated.'], 401);
     }
+
+    // $token = \App\Models\User::first()->createToken('login');
 });
+
+
