@@ -23,10 +23,8 @@ use Illuminate\Support\Facades\Auth;
 
 Route::group(['middleware' => 'auth:sanctum'], function (){
     Route::get('get-all-users',[HomeController::class,'allUsers'])->name('get-all-users');
-    
-    Route::get('users-search',function(){
-        
-    })->name('users-search');
+
+    Route::get('users-search',[HomeController::class,'userSearch'])->name('users-search');
 
     Route::get('outer-connections',[OuterConnectionController::class,'index']);
     Route::post('outer-connections',[OuterConnectionController::class,'store']);
@@ -35,7 +33,7 @@ Route::group(['middleware' => 'auth:sanctum'], function (){
 
 Route::group(['middleware' => 'OuterConnection'], function (){
     Route::get('users',[HomeController::class,'allUsers'])->name('get-all-users.outer');
-    
+
 });
 
 

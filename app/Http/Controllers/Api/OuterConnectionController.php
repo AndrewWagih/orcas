@@ -20,10 +20,10 @@ class OuterConnectionController extends Controller
         $totalOuterConnections = DB::select('SELECT COUNT(*) as total_outer_connections FROM outer_connections');
         $totalOuterConnections = $totalOuterConnections[0]->total_outer_connections;
         $totalPages = ceil(($totalOuterConnections)/$pagination);
-    
 
-    
-        $response = response($outer_connections,$pagination,$page_number,$totalOuterConnections,$totalPages);
+
+
+        $response = responseWithPagination($outer_connections,$pagination,$page_number,$totalOuterConnections,$totalPages);
 
         return response()->json($response,200);
     }
@@ -31,7 +31,7 @@ class OuterConnectionController extends Controller
     public function store(Request $request){
         $validator = Validator::make($request->all(), [
             'client_name' => 'required|max:30',
-            
+
         ]);
 
         if ($validator->fails()) {
@@ -52,7 +52,7 @@ class OuterConnectionController extends Controller
         $outerCon->save();
         return response()->json([
             'data' => $outerCon
-        ], 200);    
+        ], 200);
     }
 
 

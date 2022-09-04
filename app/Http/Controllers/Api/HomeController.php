@@ -15,12 +15,12 @@ class HomeController extends Controller
         $totalUsers  = \App\Models\User::count();
         $totalPages = ceil(($totalUsers)/$pagination);
         $response = responseWithPagination($users,$pagination,$page_number,$totalUsers,$totalPages);
-    
+
         return response()->json($response,200);
     }
 
     public function userSearch(){
-        
+
         $pagination = 10;
         $page_number = request()->page ?? 1 ;
         $searchText = request()->searchText;
@@ -28,7 +28,7 @@ class HomeController extends Controller
         $totalUsers = DB::select('SELECT COUNT(*) as totalUsers FROM users WHERE first_name LIKE \'%'.$searchText.'%\' OR last_name LIKE \'%'.$searchText.'%\' OR email LIKE \'%'.$searchText.'%\'');
         $totalUsers = $totalUsers[0]->totalUsers;
         $totalPages = ceil(($totalUsers)/$pagination);
-    
+
         $response = responseWithPagination($users,$pagination,$page_number,$totalUsers,$totalPages);
 
         return response()->json($response,200);
